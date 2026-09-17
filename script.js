@@ -1,10 +1,33 @@
 //You can edit ALL of the code here
 let allEpisodes;
-function setup() {
-  allEpisodes = getAllEpisodes();
-  makePageForEpisodes(allEpisodes);
+const endPoint="https://api.tvmaze.com/shows/82/episodes"
+async function fetchEpisodes() {
+  const response = await fetch(endPoint);
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+  return await response.json();
 }
 
+async function setup() {
+  // show the user to wait for the data
+  showLoadingMessage()
+  try{
+    allEpisodes = await fetchEpisodes();
+    makePageForEpisodes(allEpisodes);
+  } catch(error){
+    showErrorMessage()
+  }
+  
+}
+function showLoadingMessage(){
+  document.getElementById("card-container").innerHTML =
+  "<p>loading episodes, please wait...<p>"
+}
+function showErrorMessage() {
+  document.getElementById("card-container").innerHTML =
+    "<p>Sorry, something went wrong loading the episodes. Please try again later.</p>";
+}
 
 
 // create episode code of the season and the episode number
@@ -67,6 +90,7 @@ searchInput.addEventListener("input",(event) =>{
   });
   makePageForEpisodes(filteredEpisodes)
 });
+
 
 window.onload = setup;
 
