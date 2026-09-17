@@ -41,9 +41,32 @@ function createEpisodeCard(episode){
 function makePageForEpisodes(episodeList) {
   const cardContainer = document.getElementById("card-container");
 
+  // cleared the existing cards
+  cardContainer.innerHTML ="";
+
+  // create new filtered cards from he search result
   const episodeCards = episodeList.map(createEpisodeCard);
 
   cardContainer.append(...episodeCards);
+
+  // update the count of displayed episodes
+  const countDisplay =document.getElementById('count-result');
+  countDisplay.textContent = `${episodeList.length}/${allEpisodes.length}`;
+
 }
+// build the search functionality 
+const searchInput = document.getElementById("search");
+searchInput.addEventListener("input",(event) =>{
+  const searchValue = event.target.value;
+  const filteredEpisodes = allEpisodes.filter((episode)=>{
+    return(
+      episode.name.toLowerCase().includes(searchValue.toLowerCase())||
+      episode.summary.toLowerCase().includes(searchValue.toLowerCase)
+    )
+  }
+  )
+}
+)
+
 window.onload = setup;
-//
+
