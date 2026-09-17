@@ -1,12 +1,40 @@
-#root {
-  color: red;
+/* target the search input */
+#search {
+  padding: 8px;
+  font-size: 16px;
+  width: 300px;
 }
-#card-container{
-  display: grid;
-  gap: 1rem;
-}
-section{
-  border: 1px solid;
-  padding: 1rem;
 
+/* the box holding all the cards */
+#card-container {
+  display: flex;
+  /* lines cards up in a row */
+  flex-wrap: wrap;
+  /* lets them wrap to the next line when the row fills up */
+  gap: 16px;
+  /* space between cards */
+}
+
+/* each individual episode card (the <section> inside the template) */
+#card-container section {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  width: 250px;
+  /* fixed width so cards line up evenly */
+}
+
+#card-container img {
+  width: 100%;
+  /* image fills the card's width */
+}
+
+#card-container h2 {
+  font-size: 18px;
+  margin: 8px 0 4px;
+}
+
+[data-episode-number] {
+  color: gray;
+  font-size: 14px;
 }
