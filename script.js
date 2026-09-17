@@ -1,6 +1,7 @@
 //You can edit ALL of the code here
+let allEpisodes;
 function setup() {
-  const allEpisodes = getAllEpisodes();
+  allEpisodes = getAllEpisodes();
   makePageForEpisodes(allEpisodes);
 }
 
@@ -61,12 +62,11 @@ searchInput.addEventListener("input",(event) =>{
   const filteredEpisodes = allEpisodes.filter((episode)=>{
     return(
       episode.name.toLowerCase().includes(searchValue.toLowerCase())||
-      episode.summary.toLowerCase().includes(searchValue.toLowerCase)
+      episode.summary.toLowerCase().includes(searchValue.toLowerCase())
     )
-  }
-  )
-}
-)
+  });
+  makePageForEpisodes(filteredEpisodes)
+});
 
 window.onload = setup;
 
