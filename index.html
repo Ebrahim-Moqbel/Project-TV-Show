@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -9,33 +9,30 @@
   </head>
 
   <body>
-   
     <div id="root">
       <div class="search-bar">
-        <input type="text" id="search" placeholder="Search episodes...">
-        <p id="count">Displaying<span id ="count-result">0</span>episodes</p>
+        <select id="show-select">
+          <option>Loading shows...</option>
+        </select>
+        <input type="text" id="search" placeholder="Search episodes..." />
+        <p id="count">Displaying<span id="count-result">0</span>episodes</p>
       </div>
-      <div id="card-container">
-
-      </div>
+      <div id="card-container"></div>
     </div>
     <template id="episode-card">
       <section>
         <h2>episode title</h2>
         <p data-episode-number>episode number</p>
-        <img src ="" alt="">
+        <img src="" alt="" />
         <p data-summary>summary</p>
-
       </section>
     </template>
     <footer>
       <p>
-        The data come originally from <a href="https://tvmaze.com/" target="_blank">TVMaze.com</a>
+        The data come originally from
+        <a href="https://tvmaze.com/" target="_blank">TVMaze.com</a>
       </p>
     </footer>
-
-    <!-- Loads a provided function called getAllEpisodes() which returns all episodes -->
-    <script src="episodes.js"></script>
 
     <!-- Loads YOUR javascript code -->
     <script src="script.js"></script>
