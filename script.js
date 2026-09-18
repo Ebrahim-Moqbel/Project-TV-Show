@@ -8,6 +8,7 @@ let selectedShowId = null;
 const episodeCache = {};
 
 const showSelect = document.getElementById("show-select");
+const episodeSelect = document.getElementById("episode-select");
 const searchInput = document.getElementById("search");
 const cardContainer = document.getElementById("card-container");
 const countDisplay = document.getElementById("count-result");
@@ -27,6 +28,17 @@ async function setup() {
   searchInput.addEventListener("input", () => {
     renderEpisodes();
   });
+
+  episodeSelect.addEventListener("change", () => {
+    const episodeIndex = Number(episodeSelect.value);
+
+    if (episodeSelect.value === "") {
+      renderEpisodes();
+
+    }
+
+    renderEpisodes([allEpisodes[episodeIndex]]);
+  });
 }
 
 // fetch the list of all shows (only ever called once)
@@ -44,7 +56,7 @@ async function loadShows() {
 
     // alphabetical, case-insensitive
     allShows.sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+      a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
     );
 
     populateShowSelect();
@@ -79,6 +91,7 @@ async function loadEpisodes(showId) {
 
   if (Object.hasOwn(episodeCache, showId)) {
     allEpisodes = episodeCache[showId];
+    populateEpisodeSelect();
     renderEpisodes();
     return;
   }
@@ -96,6 +109,7 @@ async function loadEpisodes(showId) {
     allEpisodes = data;
     episodeCache[showId] = data;
 
+    populateEpisodeSelect();
     renderEpisodes();
   } catch (error) {
     console.error(error);
@@ -139,14 +153,30 @@ function createEpisodeCard(episode) {
   return card;
 }
 
+// populate the episode dropdown for whichever show is currently loaded
+function populateEpisodeSelect() {
+  episodeSelect.innerHTML = "";
+
+  const firstOption = document.createElement("option");
+  firstOption.value = "";
+  firstOption.textContent = "Select an episode";
+  episodeSelect.append(firstOption);
+
+  allEpisodes.forEach((episode, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = `${makeEpisodeCode(episode.season, episode.number)} - ${episode.name}`;
+    episodeSelect.append(option);
+  });
+}
+
 // filter the currently loaded show's episodes and render them
-function renderEpisodes() {
+function renderEpisodes(episodeList = allEpisodes) {
   const searchValue = searchInput.value.toLowerCase();
 
-  const filteredEpisodes = allEpisodes.filter(
-    (episode) =>
-      episode.name.toLowerCase().includes(searchValue) ||
-      episode.summary.toLowerCase().includes(searchValue),
+  const filteredEpisodes = episodeList.filter((episode) =>
+    episode.name.toLowerCase().includes(searchValue) ||
+    episode.summary.toLowerCase().includes(searchValue)
   );
 
   cardContainer.innerHTML = "";
