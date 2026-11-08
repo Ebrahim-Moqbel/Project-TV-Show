@@ -4,45 +4,78 @@ let allShows = [];
 let allEpisodes = [];
 let selectedShowId = null;
 
-// caches so we never fetch the same URL twice during a visit
+// cache so we never fetch the same episodes URL twice during a visit
 const episodeCache = {};
 
+// views
+const showsView = document.getElementById("shows-view");
+const episodesView = document.getElementById("episodes-view");
+
+// shows listing
+const showsContainer = document.getElementById("shows-container");
+const showTemplate = document.getElementById("show-card");
+const showSearchInput = document.getElementById("show-search");
+const showCountDisplay = document.getElementById("show-count");
+
+// episodes listing
 const showSelect = document.getElementById("show-select");
 const episodeSelect = document.getElementById("episode-select");
 const searchInput = document.getElementById("search");
 const cardContainer = document.getElementById("card-container");
 const countDisplay = document.getElementById("count-result");
 const template = document.getElementById("episode-card");
+// back link look up
+const backLink = document.getElementById("back-to-shows");
 
 async function setup() {
-  await loadShows();
+  showShowsView();
+
+  showSearchInput.addEventListener("input", renderShows);
 
   showSelect.addEventListener("change", () => {
-    selectedShowId = showSelect.value;
-
-    if (selectedShowId) {
-      loadEpisodes(selectedShowId);
+    if (showSelect.value) {
+      openShow(showSelect.value);
     }
   });
 
   searchInput.addEventListener("input", () => {
+    episodeSelect.value = "";
     renderEpisodes();
   });
 
-  episodeSelect.addEventListener("change", () => {
-    const episodeIndex = Number(episodeSelect.value);
+  backLink.addEventListener("click", (event) => {
+    event.preventDefault();
+    showShowsView();
+  });
 
+  episodeSelect.addEventListener("change", () => {
+    searchInput.value = "";
     if (episodeSelect.value === "") {
       renderEpisodes();
-
+    } else {
+      renderEpisodes([allEpisodes[Number(episodeSelect.value)]]);
     }
-
-    renderEpisodes([allEpisodes[episodeIndex]]);
   });
+  await loadShows();
 }
 
-// fetch the list of all shows (only ever called once)
+// ---------- view switching ----------
+
+function showShowsView() {
+  showsView.hidden = false;
+  episodesView.hidden = true;
+}
+
+function showEpisodesView() {
+  showsView.hidden = true;
+  episodesView.hidden = false;
+}
+
+// ---------- shows ----------
+
+// fetch the list of all shows (only called once)
 async function loadShows() {
+  showsContainer.innerHTML = "<p>Loading shows...</p>";
   showSelect.innerHTML = "<option>Loading shows...</option>";
 
   try {
@@ -56,21 +89,16 @@ async function loadShows() {
 
     // alphabetical, case-insensitive
     allShows.sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+      a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
     );
 
     populateShowSelect();
-
-    // load episodes for the first show by default
-    if (allShows.length > 0) {
-      selectedShowId = allShows[0].id;
-      showSelect.value = selectedShowId;
-      await loadEpisodes(selectedShowId);
-    }
+    renderShows();
   } catch (error) {
     console.error(error);
     showSelect.innerHTML = "<option>Could not load shows</option>";
-    showErrorMessage();
+    showsContainer.innerHTML =
+      "<p>Sorry, something went wrong loading the shows. Please try again later.</p>";
   }
 }
 
@@ -84,6 +112,72 @@ function populateShowSelect() {
     showSelect.append(option);
   }
 }
+
+function stripTags(text) {
+  return (text ?? "").replace(/<[^>]*>/g, "");
+}
+
+function createShowCard(show) {
+  const card = showTemplate.content.cloneNode(true);
+
+  const nameButton = card.querySelector("[data-show-name]");
+  nameButton.textContent = show.name;
+  nameButton.addEventListener("click", () => {
+    openShow(show.id);
+  });
+
+  const image = card.querySelector("img");
+  if (show.image) {
+    image.src = show.image.medium;
+    image.alt = `Poster for ${show.name}`;
+  }
+
+  card.querySelector("[data-summary]").innerHTML = show.summary ?? "";
+
+  card.querySelector("[data-genres]").textContent =
+    show.genres.length > 0 ? show.genres.join(" | ") : "N/A";
+
+  card.querySelector("[data-status]").textContent = show.status ?? "N/A";
+
+  card.querySelector("[data-rating]").textContent =
+    show.rating?.average ?? "N/A";
+
+  card.querySelector("[data-runtime]").textContent = show.runtime
+    ? `${show.runtime} min`
+    : "N/A";
+
+  return card;
+}
+
+// filter on name, genres and summary
+
+function renderShows() {
+  const searchValue = showSearchInput.value.toLowerCase();
+
+  const filteredShows = allShows.filter(
+    (show) =>
+      show.name.toLowerCase().includes(searchValue) ||
+      show.genres.join(" ").toLowerCase().includes(searchValue) ||
+      stripTags(show.summary).toLowerCase().includes(searchValue),
+  );
+
+  showsContainer.innerHTML = "";
+
+  showsContainer.append(...filteredShows.map(createShowCard));
+  showCountDisplay.textContent = `found ${filteredShows.length} shows`;
+}
+
+// called when a show name is clicked (or picked in the dropdown)
+function openShow(showId) {
+  selectedShowId = String(showId);
+  showSelect.value = selectedShowId;
+  searchInput.value = "";
+
+  showEpisodesView();
+  loadEpisodes(showId);
+}
+
+// ---------- episodes ----------
 
 // fetch episodes for a given show, using the cache if we already have them
 async function loadEpisodes(showId) {
@@ -148,7 +242,7 @@ function createEpisodeCard(episode) {
     image.alt = `Scene from ${episodeNumber}, ${episode.name}`;
   }
 
-  card.querySelector("[data-summary]").innerHTML = episode.summary;
+  card.querySelector("[data-summary]").innerHTML = episode.summary ?? "";
 
   return card;
 }
@@ -174,15 +268,17 @@ function populateEpisodeSelect() {
 function renderEpisodes(episodeList = allEpisodes) {
   const searchValue = searchInput.value.toLowerCase();
 
-  const filteredEpisodes = episodeList.filter((episode) =>
-    episode.name.toLowerCase().includes(searchValue) ||
-    episode.summary.toLowerCase().includes(searchValue)
+  const filteredEpisodes = episodeList.filter(
+    (episode) =>
+      episode.name.toLowerCase().includes(searchValue) ||
+      stripTags(episode.summary ?? "")
+        .toLowerCase()
+        .includes(searchValue),
   );
 
   cardContainer.innerHTML = "";
 
-  const episodeCards = filteredEpisodes.map(createEpisodeCard);
-  cardContainer.append(...episodeCards);
+  cardContainer.append(...filteredEpisodes.map(createEpisodeCard));
 
   countDisplay.textContent = `${filteredEpisodes.length}/${allEpisodes.length}`;
 }
