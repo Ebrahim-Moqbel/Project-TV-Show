@@ -1,43 +1,88 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TV Show Project | Ebrahim Moqbel (Ebrahim Moqbel)</title>
+
+    <title>TV Show Project | Mandip Sanger (mandipsanger)</title>
+
     <link href="style.css" rel="stylesheet" />
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   </head>
 
   <body>
-   
-    <div id="root">
-      <div class="search-bar">
-        <input type="text" id="search" placeholder="Search episodes...">
-        <p id="count">Displaying<span id ="count-result">0</span>episodes</p>
-      </div>
-      <div id="card-container">
+    <header class="container">
+      <h1>TV Show Project</h1>
+      <h2>Sample Solution</h2>
 
-      </div>
-    </div>
-    <template id="episode-card">
-      <section>
-        <h2>episode title</h2>
-        <p data-episode-number>episode number</p>
-        <img src ="" alt="">
-        <p data-summary>summary</p>
+      <form class="container">
+        <!-- Search episodes -->
+        <label for="episode-search" class="is-invisible">
+          Filter Episodes
+        </label>
 
-      </section>
-    </template>
+        <input
+          type="search"
+          id="episode-search"
+          name="episode-search"
+          placeholder="Search Episodes"
+        />
+
+        <!-- Select a TV show -->
+        <label for="show-select" class="is-invisible"> Select a show </label>
+
+        <select id="show-select" name="show-select">
+          <option value="">Loading shows...</option>
+        </select>
+
+        <!-- Select an episode -->
+        <label for="episode-select" class="is-invisible">
+          Select One Episode
+        </label>
+
+        <select id="episode-select" name="episode-select">
+          <option value="">Select an episode</option>
+        </select>
+
+        <button type="reset">Reset</button>
+      </form>
+    </header>
+
+    <main class="container">
+      <h2 id="count-container" aria-live="polite"></h2>
+
+      <div id="card-container" class="grid"></div>
+
+      <!-- Episode card template -->
+      <template id="episode-card">
+        <section data-episode class="card">
+          <h3 class="card__title" data-episode="title">
+            Episode Name Goes Here
+          </h3>
+
+          <div class="card__summary" data-episode="summary">
+            Summary Goes Here
+          </div>
+
+          <img
+            class="card__image"
+            data-episode="image"
+            src=""
+            alt=""
+            height="140"
+            width="250"
+          />
+        </section>
+      </template>
+    </main>
+
     <footer>
-      <p>
-        The data come originally from <a href="https://tvmaze.com/" target="_blank">TVMaze.com</a>
-      </p>
+      <h2>
+        Data originally from
+        <a href="https://tvmaze.com/">TV Maze</a>
+      </h2>
     </footer>
 
-    <!-- Loads a provided function called getAllEpisodes() which returns all episodes -->
-    <script src="episodes.js"></script>
-
-    <!-- Loads YOUR javascript code -->
     <script src="script.js"></script>
   </body>
 </html>
